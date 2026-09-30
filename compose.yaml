@@ -2,3 +2,5 @@ name: home-lab
 
 include:
   - path: services/core/compose.yaml
+  - path: services/observability/compose.yaml
+  - path: services/network/compose.yaml

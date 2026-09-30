@@ -1,0 +1,10 @@
+apiVersion: 1
+
+providers:
+  - name: home-lab
+    folder: Home lab
+    type: file
+    disableDeletion: true
+    allowUiUpdates: false
+    options:
+      path: /var/lib/grafana/dashboards

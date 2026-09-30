@@ -1,0 +1,25 @@
+{
+  "annotations": {"list": []},
+  "editable": false,
+  "panels": [
+    {
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0},
+      "id": 1,
+      "options": {
+        "content": "# AI benchmark boundary\n\nModel runs and artifacts are recorded in MLflow. Reviewed JSON results use the repository schema. This dashboard stays empty until a real metrics exporter is connected; it does not invent throughput data.",
+        "mode": "markdown"
+      },
+      "title": "evidence source",
+      "type": "text"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 42,
+  "tags": ["home-lab", "ai"],
+  "templating": {"list": []},
+  "time": {"from": "now-6h", "to": "now"},
+  "timezone": "browser",
+  "title": "ai benchmarks",
+  "uid": "ai-benchmarks",
+  "version": 1
+}

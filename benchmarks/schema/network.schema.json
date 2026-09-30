@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "home lab network probe benchmark",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "benchmark", "timestamp", "method", "target", "repetitions", "samples", "aggregate", "caveats"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "benchmark": {"const": "network-http"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "method": {"const": "HTTP GET"},
+    "target": {"type": "string", "format": "uri"},
+    "repetitions": {"type": "integer", "minimum": 2},
+    "samples": {"type": "array", "items": {"type": "number", "minimum": 0}},
+    "aggregate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min_ms", "median_ms", "max_ms"],
+      "properties": {
+        "min_ms": {"type": "number", "minimum": 0},
+        "median_ms": {"type": "number", "minimum": 0},
+        "max_ms": {"type": "number", "minimum": 0}
+      }
+    },
+    "caveats": {"type": "array", "items": {"type": "string"}}
+  }
+}

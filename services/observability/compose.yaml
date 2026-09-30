@@ -1,0 +1,184 @@
+services:
+  prometheus:
+    image: prom/prometheus:v3.15.0
+    profiles: [observability, observability-full]
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --storage.tsdb.retention.size=4GB
+      - --web.enable-lifecycle
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ${LAB_DATA_ROOT:-/srv/home-lab}/data/prometheus:/prometheus
+    networks:
+      - metrics
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:9090/-/ready]
+      interval: 10s
+      timeout: 3s
+      retries: 15
+
+  grafana:
+    image: grafana/grafana:13.2.3
+    profiles: [observability, observability-full]
+    restart: unless-stopped
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?set in a private env file}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_SERVER_ROOT_URL: http://grafana.lab.localhost:8080
+    volumes:
+      - ${LAB_DATA_ROOT:-/srv/home-lab}/data/grafana:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - metrics
+      - edge_obs
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: [CMD-SHELL, curl -fsS http://127.0.0.1:3000/api/health >/dev/null]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  node-exporter:
+    image: prom/node-exporter:v1.12.1
+    profiles: [observability, observability-full]
+    restart: unless-stopped
+    command:
+      - --path.procfs=/host/proc
+      - --path.rootfs=/host/root
+      - --path.sysfs=/host/sys
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+    pid: host
+    volumes:
+      - /:/host/root:ro,rslave
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    networks:
+      - metrics
+    read_only: true
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+
+  cadvisor:
+    image: ghcr.io/google/cadvisor:v0.60.6
+    profiles: [observability, observability-full]
+    restart: unless-stopped
+    # cgroup and device metrics need host-level container visibility
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    networks:
+      - metrics
+    read_only: true
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:8080/healthz]
+      interval: 15s
+      timeout: 5s
+      retries: 15
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.28.0
+    profiles: [observability, observability-full]
+    restart: unless-stopped
+    command: [--config.file=/etc/blackbox/config.yml]
+    volumes:
+      - ./blackbox/config.yml:/etc/blackbox/config.yml:ro
+    networks:
+      - metrics
+    read_only: true
+    tmpfs:
+      - /tmp:size=8m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+
+  loki:
+    image: grafana/loki:3.7.8
+    profiles: [observability-full]
+    restart: unless-stopped
+    command: [--config.file=/etc/loki/config.yml]
+    volumes:
+      - ./loki/config.yml:/etc/loki/config.yml:ro
+      - ${LAB_DATA_ROOT:-/srv/home-lab}/data/loki:/loki
+    networks:
+      - logs
+      - metrics
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+
+  loki-health:
+    image: alpine:3.22.1
+    profiles: [observability-full]
+    restart: unless-stopped
+    command: [sleep, infinity]
+    depends_on:
+      loki:
+        condition: service_started
+    networks:
+      - logs
+    read_only: true
+    tmpfs:
+      - /tmp:size=8m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://loki:3100/ready]
+      interval: 10s
+      timeout: 3s
+      retries: 20
+
+  alloy:
+    image: grafana/alloy:v1.20.1
+    profiles: [observability-full]
+    restart: unless-stopped
+    command: [run, --storage.path=/tmp/alloy, /etc/alloy/config.alloy]
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    networks:
+      - logs
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  metrics:
+    name: home-lab-metrics
+    internal: true
+  logs:
+    name: home-lab-logs
+    internal: true
+  edge_obs:
+    name: home-lab-edge
+    external: true
