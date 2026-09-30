@@ -1,0 +1,12 @@
+description: small deterministic local model checks
+
+prompts:
+  - "Return a JSON object with one key named answer for this request: {{request}}"
+
+providers:
+  - id: ollama:chat:${OLLAMA_MODEL}
+    config:
+      apiBaseUrl: ${OLLAMA_BASE_URL}
+      temperature: 0
+
+tests: file://dataset.json

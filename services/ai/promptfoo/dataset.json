@@ -1,0 +1,19 @@
+[
+  {
+    "vars": {"request": "write the integer after 41"},
+    "assert": [
+      {"type": "is-json"},
+      {
+        "type": "javascript",
+        "value": "output.answer === 42 || output.answer === '42'"
+      }
+    ]
+  },
+  {
+    "vars": {"request": "write the lowercase word blue"},
+    "assert": [
+      {"type": "is-json"},
+      {"type": "javascript", "value": "output.answer === 'blue'"}
+    ]
+  }
+]

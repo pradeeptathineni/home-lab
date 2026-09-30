@@ -1,0 +1,74 @@
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:v0.11.4
+    profiles: [ai]
+    restart: unless-stopped
+    environment:
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.lima.internal:11434}
+      WEBUI_AUTH: "true"
+      ENABLE_SIGNUP: "false"
+      WEBUI_ADMIN_EMAIL: ${OPEN_WEBUI_ADMIN_EMAIL:?set in a private env file}
+      WEBUI_ADMIN_PASSWORD: ${OPEN_WEBUI_ADMIN_PASSWORD:?set in a private env file}
+      WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY:?set in a private env file}
+      ENABLE_VERSION_UPDATE_CHECK: "false"
+      ENABLE_COMMUNITY_SHARING: "false"
+      DO_NOT_TRACK: "true"
+      SCARF_NO_ANALYTICS: "true"
+      OFFLINE_MODE: "true"
+      RAG_EMBEDDING_ENGINE: ollama
+      RAG_OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.lima.internal:11434}
+    volumes:
+      - ${LAB_DATA_ROOT:-/srv/home-lab}/data/open-webui:/app/backend/data
+    networks:
+      - ai_internal
+      - edge_ai
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: [CMD, curl, -fsS, http://127.0.0.1:8080/health]
+      interval: 15s
+      timeout: 5s
+      retries: 30
+      start_period: 45s
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v3.16.1
+    profiles: [ai]
+    restart: unless-stopped
+    environment:
+      GIT_PYTHON_REFRESH: quiet
+    command:
+      - mlflow
+      - server
+      - --host=0.0.0.0
+      - --port=5000
+      - --backend-store-uri=sqlite:////mlflow/mlflow.db
+      - --default-artifact-root=/mlflow/artifacts
+    volumes:
+      - ${LAB_DATA_ROOT:-/srv/home-lab}/data/mlflow:/mlflow
+      - ./mlflow-smoke.py:/opt/home-lab/mlflow-smoke.py:ro
+    networks:
+      - ai_internal
+      - edge_ai
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health')"
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+networks:
+  ai_internal:
+    name: home-lab-ai
+    internal: true
+  edge_ai:
+    name: home-lab-edge
+    external: true
