@@ -1,0 +1,107 @@
+services:
+  caddy:
+    image: caddy:2.11.4-alpine
+    profiles: [core]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+    networks:
+      - edge_core
+    read_only: true
+    tmpfs:
+      - /config:size=16m
+      - /data:size=16m
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:8080/healthz]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+
+  homarr:
+    image: ghcr.io/homarr-labs/homarr:v1.77.2
+    profiles: [core]
+    restart: unless-stopped
+    depends_on:
+      socket-proxy:
+        condition: service_healthy
+    environment:
+      SECRET_ENCRYPTION_KEY: ${HOMARR_SECRET_ENCRYPTION_KEY:?set in a private env file}
+      DOCKER_HOSTNAMES: socket-proxy
+      DOCKER_PORTS: "2375"
+      NO_EXTERNAL_CONNECTION: "true"
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ${LAB_DATA_ROOT:-/srv/home-lab}/data/homarr:/appdata
+    networks:
+      - edge_core
+      - socket_api
+    # bundled nginx changes uid and owns its internal runtime tree
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:7575/api/health/live]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  socket-proxy:
+    image: lscr.io/linuxserver/socket-proxy:3.4.6-r0-ls100
+    profiles: [core]
+    restart: unless-stopped
+    environment:
+      ALLOW_RESTARTS: "1"
+      ALLOW_START: "1"
+      ALLOW_STOP: "1"
+      AUTH: "0"
+      BUILD: "0"
+      COMMIT: "0"
+      CONFIGS: "0"
+      CONTAINERS: "1"
+      DELETE: "0"
+      DISTRIBUTION: "0"
+      EVENTS: "1"
+      EXEC: "0"
+      IMAGES: "0"
+      INFO: "1"
+      NETWORKS: "0"
+      NODES: "0"
+      PING: "1"
+      PLUGINS: "0"
+      POST: "0"
+      SECRETS: "0"
+      SERVICES: "0"
+      SESSION: "0"
+      SWARM: "0"
+      SYSTEM: "0"
+      TASKS: "0"
+      VERSION: "1"
+      VOLUMES: "0"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - socket_api
+    read_only: true
+    tmpfs:
+      - /run:size=8m
+      - /var/run:size=8m
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:2375/_ping]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+
+networks:
+  edge_core:
+    name: home-lab-edge
+  socket_api:
+    name: home-lab-socket-api
+    internal: true

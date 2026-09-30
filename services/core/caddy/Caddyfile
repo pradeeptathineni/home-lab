@@ -1,0 +1,46 @@
+{
+	auto_https off
+	admin off
+}
+
+:8080 {
+	@health path /healthz
+	respond @health "ok" 200
+
+	@dashboard host dashboard.lab.localhost
+	handle @dashboard {
+		reverse_proxy homarr:7575
+	}
+
+	@grafana host grafana.lab.localhost
+	handle @grafana {
+		reverse_proxy grafana:3000
+	}
+
+	@ai host ai.lab.localhost
+	handle @ai {
+		reverse_proxy open-webui:8080
+	}
+
+	@mlflow host mlflow.lab.localhost
+	handle @mlflow {
+		reverse_proxy mlflow:5000
+	}
+
+	@paperless host paperless.lab.localhost
+	handle @paperless {
+		reverse_proxy paperless:8000
+	}
+
+	@syncthing host syncthing.lab.localhost
+	handle @syncthing {
+		reverse_proxy syncthing:8384
+	}
+
+	respond "route not found" 404
+
+	log {
+		output stdout
+		format json
+	}
+}

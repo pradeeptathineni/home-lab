@@ -1,0 +1,4 @@
+name: home-lab
+
+include:
+  - path: services/core/compose.yaml
