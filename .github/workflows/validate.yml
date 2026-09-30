@@ -1,0 +1,57 @@
+name: validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repository:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09  # v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install validation dependencies
+        run: pip install -e '.[dev]'
+
+      - name: Check Python
+        run: |
+          python -m ruff check .
+          python -m pytest
+
+      - name: Check YAML
+        run: python -m yamllint .
+
+      - name: Check Markdown
+        run: npx --yes markdownlint-cli2@0.18.1 '**/*.md' '#benchmarks/results/**'
+
+      - name: Check Compose model
+        run: >-
+          docker compose --env-file config/example.env
+          --profile core --profile observability --profile observability-full
+          --profile network-lab --profile ai --profile knowledge
+          config --quiet
+
+      - name: Check Ansible
+        run: |
+          cd infra/ansible
+          ansible-playbook -i inventory/local.yml playbooks/converge.yml --syntax-check
+          ansible-lint playbooks roles
+
+      - name: Scan committed content for secrets
+        uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc  # v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

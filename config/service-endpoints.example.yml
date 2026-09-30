@@ -1,0 +1,9 @@
+endpoints:
+  dashboard: http://dashboard.lab.localhost:8080
+  grafana: http://grafana.lab.localhost:8080
+  ai: http://ai.lab.localhost:8080
+  mlflow: http://mlflow.lab.localhost:8080
+  paperless: http://paperless.lab.localhost:8080
+  syncthing: http://syncthing.lab.localhost:8080
+
+# local development names; use a private home.arpa zone on the future network

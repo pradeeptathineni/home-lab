@@ -1,0 +1,12 @@
+extends: default
+ignore: |
+  .venv/
+  benchmarks/results/
+rules:
+  document-start: disable
+  line-length:
+    max: 100
+    allow-non-breakable-inline-mappings: true
+  truthy:
+    allowed-values: ["true", "false"]
+    check-keys: false

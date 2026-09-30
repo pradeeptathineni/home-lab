@@ -1,0 +1,13 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "dependencyDashboard": false,
+  "packageRules": [
+    {
+      "description": "Group observability image updates for one review",
+      "matchDatasources": ["docker"],
+      "matchFileNames": ["services/observability/compose.yaml"],
+      "groupName": "observability images"
+    }
+  ]
+}

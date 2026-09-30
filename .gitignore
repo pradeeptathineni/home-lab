@@ -1,0 +1,25 @@
+.DS_Store
+.env
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.py[cod]
+
+# runtime state and generated evidence
+.runtime/
+data/
+logs/
+backups/
+secrets/
+benchmarks/results/
+benchmarks/raw/
+*.sqlite
+*.sqlite3
+
+# tool output
+.ansible/
+*.retry
+coverage.xml
+htmlcov/
