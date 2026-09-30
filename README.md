@@ -1,11 +1,9 @@
 # home-lab
 
-> Papa's building a brand new server.
-
-This is the infrastructure I use to run and measure services at home. I do not
-have a dedicated always-on server yet, so the current node is a Debian VM on my
-MacBook. The service layer is portable now and is meant to move to the eventual
-server without being rewritten.
+This is the infrastructure I use to run and measure services at home, built out
+primarily from my laptop. I do not have a dedicated always-on server yet, so the
+current node is a Debian VM on my MacBook. The service layer is portable now and
+is meant to move to the eventual server without being rewritten.
 
 The useful parts are repeatability, visibility, isolation, recovery, and
 numbers I can compare instead of guesses.
