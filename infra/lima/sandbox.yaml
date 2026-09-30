@@ -1,0 +1,18 @@
+# disposable vm for work that should not share host files
+base:
+  - template:debian-13
+
+vmType: vz
+cpus: 2
+memory: 4GiB
+disk: 20GiB
+mounts: []
+portForwards: []
+
+containerd:
+  system: false
+  user: false
+
+# user networking keeps the sandbox off direct host and lan bridges
+networks:
+  - lima: user-v2

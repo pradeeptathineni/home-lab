@@ -1,0 +1,12 @@
+---
+- name: Converge the portable lab node
+  hosts: lab_nodes
+  become: true
+  force_handlers: true
+  vars_files:
+    - ../group_vars/all.yml
+  roles:
+    - role: base
+    - role: docker
+    - role: hardening
+    - role: telemetry

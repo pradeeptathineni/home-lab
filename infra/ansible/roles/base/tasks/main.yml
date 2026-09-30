@@ -1,0 +1,51 @@
+---
+- name: Refresh apt metadata when stale
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install base operating packages
+  ansible.builtin.apt:
+    name: "{{ lab_base_packages }}"
+    state: present
+
+- name: Create lab runtime root
+  ansible.builtin.file:
+    path: "{{ lab_root }}"
+    state: directory
+    owner: "{{ lab_operator }}"
+    group: "{{ lab_operator }}"
+    mode: "0750"
+
+- name: Create top-level runtime directories
+  ansible.builtin.file:
+    path: "{{ lab_root }}/{{ item }}"
+    state: directory
+    owner: "{{ lab_operator }}"
+    group: "{{ lab_operator }}"
+    mode: "{{ '0700' if item == 'secrets' else '0750' }}"
+  loop:
+    - data
+    - backups
+    - logs
+    - secrets
+
+- name: Create service data directories
+  ansible.builtin.file:
+    path: "{{ lab_root }}/data/{{ item }}"
+    state: directory
+    owner: "{{ lab_operator }}"
+    group: "{{ lab_operator }}"
+    mode: "0750"
+  loop: "{{ lab_data_directories }}"
+
+- name: Set service-specific data ownership
+  ansible.builtin.file:
+    path: "{{ lab_root }}/data/{{ item.path }}"
+    state: directory
+    owner: "{{ item.uid }}"
+    group: "{{ item.gid }}"
+    mode: "0750"
+  loop: "{{ lab_service_ownership }}"
+  loop_control:
+    label: "{{ item.path }}"

@@ -1,0 +1,54 @@
+lab_root: /srv/home-lab
+lab_operator: "{{ lookup('env', 'USER') }}"
+
+lab_base_packages:
+  - ca-certificates
+  - curl
+  - dnsutils
+  - git
+  - gnupg
+  - iperf3
+  - jq
+  - python3-debian
+  - restic
+  - unattended-upgrades
+
+lab_data_directories:
+  - caddy
+  - pihole
+
+# container users that do not perform their own safe ownership setup
+lab_service_ownership:
+  - path: grafana
+    uid: "472"
+    gid: "0"
+  - path: homarr
+    uid: "0"
+    gid: "0"
+  - path: loki
+    uid: "10001"
+    gid: "10001"
+  - path: mlflow
+    uid: "0"
+    gid: "0"
+  - path: open-webui
+    uid: "0"
+    gid: "0"
+  - path: prometheus
+    uid: "65534"
+    gid: "65534"
+  - path: paperless/consume
+    uid: "1000"
+    gid: "1000"
+  - path: paperless/data
+    uid: "1000"
+    gid: "1000"
+  - path: paperless/export
+    uid: "1000"
+    gid: "1000"
+  - path: paperless/media
+    uid: "1000"
+    gid: "1000"
+  - path: syncthing
+    uid: "1000"
+    gid: "1000"

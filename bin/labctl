@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+"""run labctl from a source checkout"""
+
+import os
+from pathlib import Path
+import sys
+
+root = Path(__file__).resolve().parents[1]
+venv_python = root / ".venv" / "bin" / "python"
+
+# use the project environment when it exists
+if venv_python.exists() and Path(sys.prefix).resolve() != (root / ".venv").resolve():
+    os.execv(venv_python, [str(venv_python), str(Path(__file__).resolve()), *sys.argv[1:]])
+
+sys.path.insert(0, str(root))
+
+from labctl.cli import main  # noqa: E402
+
+raise SystemExit(main())

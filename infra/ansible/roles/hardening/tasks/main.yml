@@ -1,0 +1,35 @@
+---
+- name: Disable SSH password and root login
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/60-home-lab.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      PasswordAuthentication no
+      PermitRootLogin no
+  notify: Reload SSH
+
+- name: Enable unattended security upgrades
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+
+- name: Apply conservative network sysctls
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/60-home-lab.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      net.ipv4.conf.all.accept_redirects = 0
+      net.ipv4.conf.default.accept_redirects = 0
+      net.ipv4.conf.all.send_redirects = 0
+      net.ipv6.conf.all.accept_redirects = 0
+      vm.overcommit_memory = 1
+  notify: Reload sysctls

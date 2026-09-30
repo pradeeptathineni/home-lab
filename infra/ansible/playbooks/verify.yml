@@ -1,0 +1,38 @@
+---
+- name: Verify the portable lab node
+  hosts: lab_nodes
+  become: false
+  vars_files:
+    - ../group_vars/all.yml
+  tasks:
+    - name: Read Docker service state
+      ansible.builtin.systemd:
+        name: docker
+      register: docker_service
+
+    - name: Verify Docker is running
+      ansible.builtin.assert:
+        that:
+          - docker_service.status.ActiveState == "active"
+
+    - name: Read Compose version
+      ansible.builtin.command: docker compose version
+      register: compose_version
+      changed_when: false
+
+    - name: Verify Compose is available
+      ansible.builtin.assert:
+        that:
+          - compose_version.rc == 0
+          - "'Docker Compose version' in compose_version.stdout"
+
+    - name: Inspect runtime root
+      ansible.builtin.stat:
+        path: /srv/home-lab
+      register: lab_root_state
+
+    - name: Verify runtime root permissions
+      ansible.builtin.assert:
+        that:
+          - lab_root_state.stat.isdir
+          - lab_root_state.stat.mode == "0750"

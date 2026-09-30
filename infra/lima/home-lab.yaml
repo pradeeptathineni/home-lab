@@ -1,0 +1,28 @@
+# debian service node sized from the current 64 GiB / 16 cpu host
+base:
+  - template:debian-13
+
+vmType: vz
+mountType: virtiofs
+cpus: 4
+memory: 8GiB
+disk: 40GiB
+
+# labctl adds only the repository as a read-only mount at create time
+mounts: []
+
+containerd:
+  system: false
+  user: false
+
+# caddy is the only host-facing service port
+portForwards:
+  - guestPort: 8080
+    hostPort: 8080
+    hostIP: 127.0.0.1
+    proto: tcp
+  # block lima's automatic forwarding fallback for every other listener
+  - guestIP: 0.0.0.0
+    guestIPMustBeZero: false
+    proto: any
+    ignore: true

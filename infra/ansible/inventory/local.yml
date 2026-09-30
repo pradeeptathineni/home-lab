@@ -1,0 +1,8 @@
+all:
+  children:
+    lab_nodes:
+      hosts:
+        lima-home-lab:
+          ansible_host: lima-home-lab
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
