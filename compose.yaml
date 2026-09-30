@@ -5,3 +5,4 @@ include:
   - path: services/observability/compose.yaml
   - path: services/network/compose.yaml
   - path: services/ai/compose.yaml
+  - path: services/knowledge/compose.yaml

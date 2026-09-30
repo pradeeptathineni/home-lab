@@ -1,0 +1,8 @@
+Home Lab Synthetic Knowledge Note
+
+Provenance: authored for the public home-lab repository test fixture
+Marker: cedar-meteor-3921
+Privacy: synthetic content only
+
+The portable node runs Debian under Lima. Caddy provides the local entry point,
+and the service layer is expressed with Docker Compose profiles.

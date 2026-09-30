@@ -1,0 +1,89 @@
+services:
+  syncthing:
+    image: syncthing/syncthing:2.1.5
+    profiles: [knowledge]
+    restart: unless-stopped
+    environment:
+      PUID: ${LAB_UID:-1000}
+      PGID: ${LAB_GID:-1000}
+    ports:
+      - "127.0.0.1:22000:22000/tcp"
+      - "127.0.0.1:22000:22000/udp"
+    volumes:
+      - ${LAB_DATA_ROOT:-/srv/home-lab}/data/syncthing:/var/syncthing
+    networks:
+      - knowledge_internal
+      - edge_knowledge
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: [CMD, curl, -fsS, http://127.0.0.1:8384/rest/noauth/health]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  paperless-redis:
+    image: redis:8.2.1-alpine
+    profiles: [knowledge]
+    restart: unless-stopped
+    command: [redis-server, --save, "", --appendonly, "no"]
+    networks:
+      - paperless_internal
+    read_only: true
+    tmpfs:
+      - /data:size=64m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 10s
+      timeout: 3s
+      retries: 15
+
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:3.2.1
+    profiles: [knowledge]
+    restart: unless-stopped
+    depends_on:
+      paperless-redis:
+        condition: service_healthy
+    environment:
+      PAPERLESS_REDIS: redis://paperless-redis:6379
+      PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY:?set in a private env file}
+      PAPERLESS_ADMIN_USER: ${PAPERLESS_ADMIN_USER:-admin}
+      PAPERLESS_ADMIN_PASSWORD: ${PAPERLESS_ADMIN_PASSWORD:?set in a private env file}
+      PAPERLESS_URL: http://paperless.lab.localhost:8080
+      PAPERLESS_TIME_ZONE: ${TZ:-UTC}
+      PAPERLESS_OCR_LANGUAGE: eng
+      USERMAP_UID: ${LAB_UID:-1000}
+      USERMAP_GID: ${LAB_GID:-1000}
+    volumes:
+      - ${LAB_DATA_ROOT:-/srv/home-lab}/data/paperless/data:/usr/src/paperless/data
+      - ${LAB_DATA_ROOT:-/srv/home-lab}/data/paperless/media:/usr/src/paperless/media
+      - ${LAB_DATA_ROOT:-/srv/home-lab}/data/paperless/export:/usr/src/paperless/export
+      - ${LAB_DATA_ROOT:-/srv/home-lab}/data/paperless/consume:/usr/src/paperless/consume
+      - ./fixtures:/opt/home-lab/fixtures:ro
+      - ./paperless-smoke.py:/opt/home-lab/paperless-smoke.py:ro
+    networks:
+      - paperless_internal
+      - edge_knowledge
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: [CMD, curl, -fsS, http://127.0.0.1:8000/api/]
+      interval: 20s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+
+networks:
+  knowledge_internal:
+    name: home-lab-knowledge
+  paperless_internal:
+    name: home-lab-paperless
+    internal: true
+  edge_knowledge:
+    name: home-lab-edge
+    external: true
