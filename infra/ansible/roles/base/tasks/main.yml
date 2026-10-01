@@ -30,6 +30,22 @@
     - logs
     - secrets
 
+- name: Create machine metric publication directory
+  ansible.builtin.file:
+    path: "{{ lab_root }}/metrics"
+    state: directory
+    owner: "{{ lab_operator }}"
+    group: "{{ lab_operator }}"
+    mode: "0755"
+
+- name: Create private AI route socket directory
+  ansible.builtin.file:
+    path: "{{ lab_root }}/ai-route"
+    state: directory
+    owner: "{{ lab_operator }}"
+    group: "{{ lab_operator }}"
+    mode: "0750"
+
 - name: Create service data directories
   ansible.builtin.file:
     path: "{{ lab_root }}/data/{{ item }}"

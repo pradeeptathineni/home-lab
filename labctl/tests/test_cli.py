@@ -49,3 +49,33 @@ def test_script_preserves_not_tested_exit_code(
     script = tmp_path / "not_tested.py"
     script.write_text("raise SystemExit(3)\n")
     assert _run_script(tmp_path, CommandRunner(), script.name) == 3
+
+
+def test_parser_accepts_ai_operations() -> None:
+    args = build_parser().parse_args(["ai", "benchmark", "qwen35-2b-q4km"])
+    assert args.ai_command == "benchmark"
+    assert args.model == "qwen35-2b-q4km"
+    retrieval = build_parser().parse_args(["ai", "retrieval", "qwen3-embed-0.6b-q8"])
+    assert retrieval.ai_command == "retrieval"
+    route = build_parser().parse_args(["ai", "route", "start"])
+    assert route.operation == "start"
+    webui = build_parser().parse_args(["ai", "webui", "configure"])
+    assert webui.operation == "configure"
+    comparison = build_parser().parse_args(["ai", "compare"])
+    assert comparison.ai_command == "compare"
+
+
+def test_ai_fetch_dry_run_is_visible(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], tmp_path
+) -> None:
+    monkeypatch.setenv("HOME_LAB_MODEL_ROOT", str(tmp_path / "models"))
+    assert main(["--dry-run", "ai", "fetch", "granite4-1b-q4km"]) == 0
+    output = capsys.readouterr().out
+    assert "Proposed model download" in output
+    assert "curl --fail --location" in output
+
+
+def test_parser_accepts_sandbox_experiment() -> None:
+    args = build_parser().parse_args(["sandbox", "experiment", "network-fault"])
+    assert args.sandbox_command == "experiment"
+    assert args.experiment == "network-fault"

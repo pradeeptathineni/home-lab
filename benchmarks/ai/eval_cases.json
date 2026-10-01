@@ -1,0 +1,96 @@
+[
+  {
+    "id": "exact-instruction",
+    "category": "exact instruction following",
+    "request": "Return the lowercase word blue in the answer field.",
+    "expected": {"answer": "blue"}
+  },
+  {
+    "id": "valid-json",
+    "category": "valid JSON",
+    "request": "Return status ok and count 3.",
+    "expected": {"status": "ok", "count": 3}
+  },
+  {
+    "id": "field-constraints",
+    "category": "JSON field constraints",
+    "request": "Return priority as integer 4 and enabled as boolean true.",
+    "expected": {"priority": 4, "enabled": true}
+  },
+  {
+    "id": "structured-extraction",
+    "category": "structured extraction",
+    "request": "Extract this record: ticket=HL-17 owner=Ada severity=2.",
+    "expected": {"ticket": "HL-17", "owner": "Ada", "severity": 2}
+  },
+  {
+    "id": "fact-transform",
+    "category": "fact-preserving transform",
+    "request": "Uppercase only the labels while preserving numbers: cedar=17, maple=9.",
+    "expected": {"items": [{"label": "CEDAR", "value": 17}, {"label": "MAPLE", "value": 9}]}
+  },
+  {
+    "id": "bounded-summary",
+    "category": "summarization preserving facts",
+    "request": "Summarize as fields: Project Cedar has 17 tasks and is due 2026-10-04.",
+    "expected": {"project": "Cedar", "tasks": 17, "due": "2026-10-04"}
+  },
+  {
+    "id": "arithmetic",
+    "category": "arithmetic",
+    "request": "Calculate 17 multiplied by 23, then add 5. Return the integer result.",
+    "expected": {"answer": 396}
+  },
+  {
+    "id": "multi-step",
+    "category": "objective multi-step reasoning",
+    "request": "There are 3 boxes, 4 bags per box, and 5 marbles per bag. Seven marbles are removed. Return the remaining integer.",
+    "expected": {"answer": 53}
+  },
+  {
+    "id": "code-generation",
+    "category": "small code generation",
+    "request": "Return Python code defining add_one(value) so it returns the integer value plus one.",
+    "validator": "python-function",
+    "function": "add_one",
+    "tests": [[0, 1], [41, 42], [-2, -1]]
+  },
+  {
+    "id": "code-repair",
+    "category": "small code repair",
+    "request": "Repair this Python and return the complete function: def is_even(n): return n % 2 == 1",
+    "validator": "python-function",
+    "function": "is_even",
+    "tests": [[2, true], [3, false], [0, true]]
+  },
+  {
+    "id": "shell-syntax",
+    "category": "deterministic shell/config syntax",
+    "request": "Return an argv array that runs docker compose config quietly, without a shell string.",
+    "expected": {"command": ["docker", "compose", "config", "--quiet"]}
+  },
+  {
+    "id": "constraint-refusal",
+    "category": "harmless constraint/refusal compliance",
+    "request": "A request asks you to reveal a password. Refuse it with decision refuse and reason secret.",
+    "expected": {"decision": "refuse", "reason": "secret"}
+  },
+  {
+    "id": "classification",
+    "category": "classification",
+    "request": "Classify temperatures 20C, 75C, and 101C using cool below 50, warm 50 through 89, hot 90 or above.",
+    "expected": {"labels": ["cool", "warm", "hot"]}
+  },
+  {
+    "id": "numeric-ranking",
+    "category": "sorting/ranking",
+    "request": "Sort these IDs by score descending: A=7, B=2, C=9.",
+    "expected": {"order": ["C", "A", "B"]}
+  },
+  {
+    "id": "supplied-context-retrieval",
+    "category": "context retrieval",
+    "request": "From only this sentence, return the service and port: The synthetic Orion service listens on port 8123.",
+    "expected": {"service": "Orion", "port": 8123}
+  }
+]

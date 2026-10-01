@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://home-lab.invalid/schemas/ai-comparison.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "benchmark", "timestamp", "decision_rule", "measured_default", "models", "caveats"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "benchmark": {"const": "ai-comparison"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "decision_rule": {"type": "string", "minLength": 1},
+    "measured_default": {"type": "string", "minLength": 1},
+    "models": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["model_id", "model_bytes", "engine_prompt_tokens_per_second_median", "engine_generation_tokens_per_second_median", "api_ttft_seconds_median", "api_generation_tokens_per_second_median", "api_wall_time_seconds_median", "eval_passed", "eval_total", "process_rss_bytes_peak", "api_failures", "inputs"],
+        "properties": {
+          "model_id": {"type": "string"},
+          "model_bytes": {"type": "integer", "minimum": 1},
+          "engine_prompt_tokens_per_second_median": {"type": "number", "exclusiveMinimum": 0},
+          "engine_generation_tokens_per_second_median": {"type": "number", "exclusiveMinimum": 0},
+          "api_ttft_seconds_median": {"type": "number", "minimum": 0},
+          "api_generation_tokens_per_second_median": {"type": "number", "exclusiveMinimum": 0},
+          "api_wall_time_seconds_median": {"type": "number", "minimum": 0},
+          "eval_passed": {"type": "integer", "minimum": 0},
+          "eval_total": {"type": "integer", "minimum": 1},
+          "process_rss_bytes_peak": {"type": ["integer", "null"], "minimum": 0},
+          "api_failures": {"type": "integer", "minimum": 0},
+          "inputs": {"type": "array", "minItems": 3, "items": {"type": "string"}}
+        }
+      }
+    },
+    "caveats": {"type": "array", "items": {"type": "string"}}
+  }
+}

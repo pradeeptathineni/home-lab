@@ -1,0 +1,12 @@
+[
+  {"id": "atlas", "provenance": "synthetic-fixture-v1", "text": "The synthetic Atlas telemetry service listens on port 8123 and retains readings for seven days."},
+  {"id": "borealis", "provenance": "synthetic-fixture-v1", "text": "The synthetic Borealis backup job runs daily at 02:15 UTC and keeps fourteen restore points."},
+  {"id": "cedar", "provenance": "synthetic-fixture-v1", "text": "The synthetic Cedar greenhouse targets 58 percent humidity and starts its fan at 72 percent."},
+  {"id": "delta", "provenance": "synthetic-fixture-v1", "text": "The synthetic Delta API retries a failed request four times with a 250 millisecond base delay."},
+  {"id": "ember", "provenance": "synthetic-fixture-v1", "text": "The synthetic Ember log collector stores records for eleven days and labels its stream ember-lab."},
+  {"id": "fjord", "provenance": "synthetic-fixture-v1", "text": "The synthetic Fjord room monitor raises a temperature alert at 27 degrees Celsius."},
+  {"id": "glacier", "provenance": "synthetic-fixture-v1", "text": "The synthetic Glacier inventory scanner uses aisle code G-41 and refreshes stock every six minutes."},
+  {"id": "harbor", "provenance": "synthetic-fixture-v1", "text": "The synthetic Harbor resolver serves DNS on 10.33.0.53 and uses a 90 second cache lifetime."},
+  {"id": "iris", "provenance": "synthetic-fixture-v1", "text": "The synthetic Iris image cache expires thumbnails after 420 seconds and stores at most 800 items."},
+  {"id": "juniper", "provenance": "synthetic-fixture-v1", "text": "The synthetic Juniper power meter samples energy every 45 seconds and reports values in watt-hours."}
+]

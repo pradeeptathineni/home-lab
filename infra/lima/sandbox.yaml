@@ -6,6 +6,11 @@ vmType: vz
 cpus: 2
 memory: 4GiB
 disk: 20GiB
+# Plain mode disables dynamic port forwarding and Lima filesystem sharing.
+plain: true
+ssh:
+  # Plain-mode VZ restart did not restore the vsock proxy on this Intel host.
+  overVsock: false
 mounts: []
 portForwards: []
 

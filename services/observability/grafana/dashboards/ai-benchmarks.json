@@ -3,23 +3,97 @@
   "editable": false,
   "panels": [
     {
-      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0},
+      "gridPos": {"h": 5, "w": 24, "x": 0, "y": 0},
       "id": 1,
       "options": {
-        "content": "# AI benchmark boundary\n\nModel runs and artifacts are recorded in MLflow. Reviewed JSON results use the repository schema. This dashboard stays empty until a real metrics exporter is connected; it does not invent throughput data.",
+        "content": "# Local AI evidence boundary\n\n`llama-bench` engine throughput is not chat latency. These measurements are local to this Intel Mac, optional AI services remain on-demand, sample counts are bounded, and no comparison with paid frontier models is implied.",
         "mode": "markdown"
       },
-      "title": "evidence source",
+      "title": "how to read this dashboard",
       "type": "text"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 7, "w": 8, "x": 0, "y": 5},
+      "id": 2,
+      "options": {"showHeader": true},
+      "targets": [
+        {"expr": "home_lab_ai_generation_tokens_per_second", "format": "table", "instant": true, "refId": "A"}
+      ],
+      "title": "model / runtime comparison",
+      "type": "table"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 7, "w": 4, "x": 8, "y": 5},
+      "id": 3,
+      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "home_lab_ai_generation_tokens_per_second", "legendFormat": "{{model}}", "refId": "A"}],
+      "title": "generation tokens/s",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "gridPos": {"h": 7, "w": 4, "x": 12, "y": 5},
+      "id": 4,
+      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "home_lab_ai_ttft_seconds", "legendFormat": "{{model}}", "refId": "A"}],
+      "title": "time to first token",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "gridPos": {"h": 7, "w": 4, "x": 16, "y": 5},
+      "id": 5,
+      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "home_lab_ai_wall_time_seconds", "legendFormat": "{{model}}", "refId": "A"}],
+      "title": "request wall time",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"max": 1, "min": 0, "unit": "percentunit"}, "overrides": []},
+      "gridPos": {"h": 7, "w": 4, "x": 20, "y": 5},
+      "id": 6,
+      "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "home_lab_ai_eval_pass_ratio", "legendFormat": "{{model}}", "refId": "A"}],
+      "title": "deterministic eval",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "bytes"}, "overrides": []},
+      "gridPos": {"h": 7, "w": 12, "x": 0, "y": 12},
+      "id": 7,
+      "targets": [
+        {"expr": "home_lab_ai_model_bytes", "legendFormat": "{{model}} artifact", "refId": "A"},
+        {"expr": "home_lab_ai_process_rss_bytes", "legendFormat": "{{model}} RSS", "refId": "B"}
+      ],
+      "title": "artifact size and sampled process RSS",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "gridPos": {"h": 7, "w": 12, "x": 12, "y": 12},
+      "id": 8,
+      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "time() - home_lab_ai_last_success_timestamp_seconds", "legendFormat": "{{model}}", "refId": "A"}],
+      "title": "age of latest successful measurement",
+      "type": "stat"
     }
   ],
-  "refresh": "",
+  "refresh": "30s",
   "schemaVersion": 42,
   "tags": ["home-lab", "ai"],
   "templating": {"list": []},
-  "time": {"from": "now-6h", "to": "now"},
+  "time": {"from": "now-24h", "to": "now"},
   "timezone": "browser",
   "title": "ai benchmarks",
   "uid": "ai-benchmarks",
-  "version": 1
+  "version": 2
 }

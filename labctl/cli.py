@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from labctl import doctor, lima
+from labctl import ai, doctor, lima, sandbox
 from labctl.compose import (
     PROFILES,
     compose_command,
@@ -55,6 +55,40 @@ def build_parser() -> argparse.ArgumentParser:
 
     benchmark = subparsers.add_parser("benchmark", help="run a bounded benchmark")
     benchmark.add_argument("kind", choices=("ai", "dns", "network"))
+
+    ai_parser = subparsers.add_parser("ai", help="manage local AI evidence")
+    ai_commands = ai_parser.add_subparsers(dest="ai_command", required=True)
+    ai_commands.add_parser("inspect")
+    ai_commands.add_parser("models")
+    ai_fetch = ai_commands.add_parser("fetch")
+    ai_fetch.add_argument("model")
+    ai_serve = ai_commands.add_parser("serve")
+    ai_serve.add_argument("model")
+    ai_commands.add_parser("stop")
+    ai_route = ai_commands.add_parser("route")
+    ai_route.add_argument("operation", choices=("start", "status", "stop"))
+    ai_webui = ai_commands.add_parser("webui")
+    ai_webui.add_argument("operation", choices=("configure",))
+    ai_benchmark = ai_commands.add_parser("benchmark")
+    ai_benchmark.add_argument("model")
+    ai_eval = ai_commands.add_parser("eval")
+    ai_eval.add_argument("model")
+    ai_commands.add_parser("compare")
+    ai_retrieval = ai_commands.add_parser("retrieval")
+    ai_retrieval.add_argument("model")
+
+    sandbox_parser = subparsers.add_parser("sandbox", help="manage the disposable experiment VM")
+    sandbox_commands = sandbox_parser.add_subparsers(dest="sandbox_command", required=True)
+    sandbox_commands.add_parser("create")
+    sandbox_commands.add_parser("start")
+    sandbox_commands.add_parser("status")
+    sandbox_commands.add_parser("shell")
+    sandbox_commands.add_parser("verify")
+    sandbox_commands.add_parser("stop")
+    sandbox_destroy = sandbox_commands.add_parser("destroy")
+    sandbox_destroy.add_argument("--yes", action="store_true")
+    sandbox_experiment = sandbox_commands.add_parser("experiment")
+    sandbox_experiment.add_argument("experiment", choices=("network-fault",))
 
     backup = subparsers.add_parser("backup", help="operate an explicit restic repository")
     backup.add_argument("operation", choices=("create", "check", "restore-test"))
@@ -154,6 +188,50 @@ def dispatch(args: argparse.Namespace, runner: CommandRunner, repo: Path) -> int
         ).returncode
     if args.command == "benchmark":
         return _run_script(repo, runner, f"benchmarks/{args.kind}/run.py")
+    if args.command == "ai":
+        if args.ai_command == "inspect":
+            return ai.inspect(repo)
+        if args.ai_command == "models":
+            return ai.list_models(repo)
+        if args.ai_command == "fetch":
+            return ai.fetch(repo, runner, args.model)
+        if args.ai_command == "serve":
+            return ai.serve(repo, runner, args.model)
+        if args.ai_command == "stop":
+            return ai.stop(repo, runner)
+        if args.ai_command == "route":
+            if args.operation == "start":
+                return ai.route_start(repo, runner)
+            if args.operation == "status":
+                return ai.route_status(repo)
+            return ai.route_stop(repo, runner)
+        if args.ai_command == "webui":
+            return ai.configure_open_webui(repo, runner)
+        if args.ai_command == "compare":
+            return _run_script(repo, runner, "benchmarks/ai/compare.py")
+        relative = {
+            "benchmark": "benchmarks/ai/run.py",
+            "eval": "benchmarks/ai/eval.py",
+            "retrieval": "benchmarks/retrieval/run.py",
+        }[args.ai_command]
+        return _run_script(repo, runner, relative, ["--model", args.model])
+    if args.command == "sandbox":
+        if args.sandbox_command == "create":
+            return sandbox.create(repo, runner)
+        if args.sandbox_command == "start":
+            return sandbox.start(runner)
+        if args.sandbox_command == "status":
+            print(sandbox.state())
+            return 0
+        if args.sandbox_command == "shell":
+            return sandbox.shell(runner)
+        if args.sandbox_command == "verify":
+            return sandbox.verify(repo)
+        if args.sandbox_command == "stop":
+            return sandbox.stop(runner)
+        if args.sandbox_command == "destroy":
+            return sandbox.destroy(runner, args.yes)
+        return sandbox.network_fault_experiment(repo)
     if args.command == "backup":
         if args.operation == "create":
             return _run_script(repo, runner, "scripts/backup.py")

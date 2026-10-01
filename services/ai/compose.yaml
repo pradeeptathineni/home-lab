@@ -1,4 +1,25 @@
 services:
+  ai-loopback-bridge:
+    image: ghcr.io/mlflow/mlflow:v3.16.1
+    profiles: [ai]
+    restart: unless-stopped
+    user: "1000:1000"
+    command: [python, /opt/home-lab/unix-tcp-bridge.py]
+    environment:
+      HOME_LAB_AI_SOCKET: /run/host-ai/llama.sock
+      HOME_LAB_AI_BRIDGE_PORT: "18080"
+    volumes:
+      - ${LAB_DATA_ROOT:-/srv/home-lab}/ai-route:/run/host-ai:ro
+      - ./unix-tcp-bridge.py:/opt/home-lab/unix-tcp-bridge.py:ro
+    networks:
+      - ai_internal
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+
   open-webui:
     image: ghcr.io/open-webui/open-webui:v0.11.4
     profiles: [ai]
@@ -19,6 +40,7 @@ services:
       RAG_OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.lima.internal:11434}
     volumes:
       - ${LAB_DATA_ROOT:-/srv/home-lab}/data/open-webui:/app/backend/data
+      - ./configure-open-webui.py:/opt/home-lab/configure-open-webui.py:ro
     networks:
       - ai_internal
       - edge_ai
@@ -48,6 +70,8 @@ services:
     volumes:
       - ${LAB_DATA_ROOT:-/srv/home-lab}/data/mlflow:/mlflow
       - ./mlflow-smoke.py:/opt/home-lab/mlflow-smoke.py:ro
+      - ./mlflow-log.py:/opt/home-lab/mlflow-log.py:ro
+      - ../../benchmarks:/opt/home-lab/benchmarks:ro
     networks:
       - ai_internal
       - edge_ai

@@ -65,11 +65,13 @@ services:
       - --path.rootfs=/host/root
       - --path.sysfs=/host/sys
       - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+      - --collector.textfile.directory=/textfile
     pid: host
     volumes:
       - /:/host/root:ro,rslave
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
+      - ${LAB_DATA_ROOT:-/srv/home-lab}/metrics:/textfile:ro
     networks:
       - metrics
     read_only: true

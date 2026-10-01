@@ -1,0 +1,17 @@
+[
+  {"id": "q01", "query": "Which port does the Atlas telemetry service use?", "relevant_document_id": "atlas", "expected_fact": "port 8123"},
+  {"id": "q02", "query": "How long are Atlas readings retained?", "relevant_document_id": "atlas", "expected_fact": "seven days"},
+  {"id": "q03", "query": "At what UTC time does the Borealis backup start?", "relevant_document_id": "borealis", "expected_fact": "02:15 UTC"},
+  {"id": "q04", "query": "How many Borealis restore points are kept?", "relevant_document_id": "borealis", "expected_fact": "fourteen restore points"},
+  {"id": "q05", "query": "What humidity should Cedar maintain?", "relevant_document_id": "cedar", "expected_fact": "58 percent humidity"},
+  {"id": "q06", "query": "How many times does Delta retry?", "relevant_document_id": "delta", "expected_fact": "four times"},
+  {"id": "q07", "query": "What is Delta's base retry delay?", "relevant_document_id": "delta", "expected_fact": "250 millisecond"},
+  {"id": "q08", "query": "What retention period is configured for Ember logs?", "relevant_document_id": "ember", "expected_fact": "eleven days"},
+  {"id": "q09", "query": "At what temperature does Fjord alert?", "relevant_document_id": "fjord", "expected_fact": "27 degrees Celsius"},
+  {"id": "q10", "query": "Which aisle code belongs to Glacier?", "relevant_document_id": "glacier", "expected_fact": "G-41"},
+  {"id": "q11", "query": "What address serves the synthetic Harbor DNS resolver?", "relevant_document_id": "harbor", "expected_fact": "10.33.0.53"},
+  {"id": "q12", "query": "What is the Harbor DNS cache lifetime?", "relevant_document_id": "harbor", "expected_fact": "90 second"},
+  {"id": "q13", "query": "When do Iris thumbnails expire?", "relevant_document_id": "iris", "expected_fact": "420 seconds"},
+  {"id": "q14", "query": "How frequently does Juniper sample energy?", "relevant_document_id": "juniper", "expected_fact": "every 45 seconds"},
+  {"id": "q15", "query": "In which units does Juniper report power-meter values?", "relevant_document_id": "juniper", "expected_fact": "watt-hours"}
+]

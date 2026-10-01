@@ -23,7 +23,7 @@ dev = [
 labctl = "labctl.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["labctl*"]
+include = ["benchmarks*", "labctl*"]
 
 [tool.pytest.ini_options]
 addopts = "-q"

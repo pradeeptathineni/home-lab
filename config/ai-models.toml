@@ -1,0 +1,44 @@
+registry_version = 1
+download_budget_bytes = 7516192768
+
+[[models]]
+id = "qwen35-2b-q4km"
+role = "generation"
+family = "qwen3.5"
+source = "unsloth/Qwen3.5-2B-GGUF"
+revision = "f6d5376be1edb4d416d56da11e5397a961aca8ae"
+file = "Qwen3.5-2B-Q4_K_M.gguf"
+quantization = "Q4_K_M"
+license = "Apache-2.0"
+expected_bytes = 1280835840
+sha256 = "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223"
+compatibility = "llama.cpp 0.5.0; text-only use does not require the optional vision projector"
+projector_required = false
+
+[[models]]
+id = "granite4-1b-q4km"
+role = "generation"
+family = "granite-4.0"
+source = "ibm-granite/granite-4.0-1b-GGUF"
+revision = "b27c2fe3f211b7f44e80fa620177aea371099aaa"
+file = "granite-4.0-1b-Q4_K_M.gguf"
+quantization = "Q4_K_M"
+license = "Apache-2.0"
+expected_bytes = 1023645440
+sha256 = "22ec0f9cc99a90185312de3c882c84e7bd6789bdd050389844380a01a831d7f1"
+compatibility = "official IBM GGUF documented for stable llama.cpp with an embedded chat template"
+projector_required = false
+
+[[models]]
+id = "qwen3-embed-0.6b-q8"
+role = "embedding"
+family = "qwen3-embedding"
+source = "Qwen/Qwen3-Embedding-0.6B-GGUF"
+revision = "370f27d7550e0def9b39c1f16d3fbaa13aa67728"
+file = "Qwen3-Embedding-0.6B-Q8_0.gguf"
+quantization = "Q8_0"
+license = "Apache-2.0"
+expected_bytes = 639150592
+sha256 = "06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439"
+compatibility = "official Qwen GGUF; serve with llama.cpp embedding mode and last pooling"
+projector_required = false

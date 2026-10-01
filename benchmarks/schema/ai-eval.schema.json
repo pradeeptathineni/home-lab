@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/home-lab/ai-eval.schema.json",
+  "title": "home lab deterministic local model evaluation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "benchmark", "timestamp", "host", "runtime", "model", "configuration", "cases", "aggregate", "caveats"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "benchmark": {"const": "ai-deterministic-eval"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "host": {"type": "object", "required": ["class", "os", "os_version", "architecture"]},
+    "runtime": {"type": "object", "required": ["name", "version", "backend"]},
+    "model": {"type": "object", "required": ["id", "family", "source", "revision", "digest", "quantization", "bytes"]},
+    "configuration": {"type": "object", "required": ["context_tokens", "threads", "temperature", "cases_digest"]},
+    "cases": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "category", "passed", "wall_time_seconds", "response", "parsed", "detail"],
+        "properties": {
+          "id": {"type": "string"},
+          "category": {"type": "string"},
+          "passed": {"type": "boolean"},
+          "wall_time_seconds": {"type": "number", "minimum": 0},
+          "response": {"type": "string"},
+          "parsed": {"type": ["object", "null"]},
+          "detail": {"type": "string"}
+        }
+      }
+    },
+    "aggregate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["passed", "total", "pass_ratio"],
+      "properties": {
+        "passed": {"type": "integer", "minimum": 0},
+        "total": {"type": "integer", "minimum": 12, "maximum": 20},
+        "pass_ratio": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "caveats": {"type": "array", "items": {"type": "string"}}
+  }
+}

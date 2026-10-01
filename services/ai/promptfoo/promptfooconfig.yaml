@@ -1,12 +1,21 @@
-description: small deterministic local model checks
+description: deterministic local model checks
 
 prompts:
-  - "Return a JSON object with one key named answer for this request: {{request}}"
+  - >-
+    Return only one valid JSON object with no markdown or commentary.
+    Use exactly the requested fields. {{request}}
 
 providers:
-  - id: ollama:chat:${OLLAMA_MODEL}
+  - id: 'openai:chat:{{ env.AI_MODEL_ID }}'
     config:
-      apiBaseUrl: ${OLLAMA_BASE_URL}
+      apiBaseUrl: '{{ env.LLAMA_BASE_URL }}'
+      apiKeyRequired: false
+      useDefaultApiKey: false
       temperature: 0
+      max_tokens: 256
+      showThinking: false
+      passthrough:
+        chat_template_kwargs:
+          enable_thinking: false
 
 tests: file://dataset.json

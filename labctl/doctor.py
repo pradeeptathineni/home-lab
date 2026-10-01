@@ -16,7 +16,8 @@ REQUIRED = {
     "limactl": "run: brew install lima",
 }
 OPTIONAL = {
-    "ollama": "needed only for local AI inference",
+    "llama-server": "preferred local AI inference runtime",
+    "ollama": "optional alternate local AI adapter",
     "tailscale": "needed only for private remote access",
     "restic": "needed only for backup commands",
 }

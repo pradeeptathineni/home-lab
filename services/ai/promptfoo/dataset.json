@@ -1,19 +1,17 @@
 [
-  {
-    "vars": {"request": "write the integer after 41"},
-    "assert": [
-      {"type": "is-json"},
-      {
-        "type": "javascript",
-        "value": "output.answer === 42 || output.answer === '42'"
-      }
-    ]
-  },
-  {
-    "vars": {"request": "write the lowercase word blue"},
-    "assert": [
-      {"type": "is-json"},
-      {"type": "javascript", "value": "output.answer === 'blue'"}
-    ]
-  }
+  {"vars": {"request": "Return the lowercase word blue in the answer field."}, "assert": [{"type": "is-json"}, {"type": "javascript", "value": "JSON.parse(output).answer === 'blue'"}]},
+  {"vars": {"request": "Return status ok and count 3."}, "assert": [{"type": "is-json"}, {"type": "javascript", "value": "JSON.parse(output).status === 'ok' && JSON.parse(output).count === 3"}]},
+  {"vars": {"request": "Return priority as integer 4 and enabled as boolean true."}, "assert": [{"type": "is-json"}, {"type": "javascript", "value": "JSON.parse(output).priority === 4 && JSON.parse(output).enabled === true"}]},
+  {"vars": {"request": "Extract: ticket=HL-17 owner=Ada severity=2."}, "assert": [{"type": "is-json"}, {"type": "javascript", "value": "JSON.parse(output).ticket === 'HL-17' && JSON.parse(output).owner === 'Ada' && JSON.parse(output).severity === 2"}]},
+  {"vars": {"request": "Uppercase labels but preserve numbers: cedar=17, maple=9."}, "assert": [{"type": "is-json"}, {"type": "javascript", "value": "JSON.parse(output).items[0].label === 'CEDAR' && JSON.parse(output).items[0].value === 17 && JSON.parse(output).items[1].label === 'MAPLE' && JSON.parse(output).items[1].value === 9"}]},
+  {"vars": {"request": "Return fields from: Project Cedar has 17 tasks and is due 2026-10-04."}, "assert": [{"type": "is-json"}, {"type": "javascript", "value": "JSON.parse(output).project === 'Cedar' && JSON.parse(output).tasks === 17 && JSON.parse(output).due === '2026-10-04'"}]},
+  {"vars": {"request": "Calculate 17 times 23 plus 5 in the answer field."}, "assert": [{"type": "is-json"}, {"type": "javascript", "value": "JSON.parse(output).answer === 396"}]},
+  {"vars": {"request": "3 boxes have 4 bags each and 5 marbles per bag; remove 7. Return the remainder."}, "assert": [{"type": "is-json"}, {"type": "javascript", "value": "JSON.parse(output).answer === 53"}]},
+  {"vars": {"request": "Return Python code defining add_one(value) to return value plus one in a code field."}, "assert": [{"type": "is-json"}, {"type": "javascript", "value": "typeof JSON.parse(output).code === 'string' && JSON.parse(output).code.includes('def add_one')"}]},
+  {"vars": {"request": "Repair def is_even(n): return n % 2 == 1 and put the complete function in code."}, "assert": [{"type": "is-json"}, {"type": "javascript", "value": "typeof JSON.parse(output).code === 'string' && JSON.parse(output).code.includes('def is_even') && JSON.parse(output).code.includes('== 0')"}]},
+  {"vars": {"request": "Return an argv array for docker compose config --quiet in command."}, "assert": [{"type": "is-json"}, {"type": "javascript", "value": "JSON.stringify(JSON.parse(output).command) === JSON.stringify(['docker','compose','config','--quiet'])"}]},
+  {"vars": {"request": "Refuse a request to reveal a password with decision refuse and reason secret."}, "assert": [{"type": "is-json"}, {"type": "javascript", "value": "JSON.parse(output).decision === 'refuse' && JSON.parse(output).reason === 'secret'"}]},
+  {"vars": {"request": "Classify 20C, 75C, 101C as cool below 50, warm 50-89, hot 90+ in labels."}, "assert": [{"type": "is-json"}, {"type": "javascript", "value": "JSON.stringify(JSON.parse(output).labels) === JSON.stringify(['cool','warm','hot'])"}]},
+  {"vars": {"request": "Sort IDs by score descending: A=7, B=2, C=9 in order."}, "assert": [{"type": "is-json"}, {"type": "javascript", "value": "JSON.stringify(JSON.parse(output).order) === JSON.stringify(['C','A','B'])"}]},
+  {"vars": {"request": "From: The synthetic Orion service listens on port 8123. Return service and port."}, "assert": [{"type": "is-json"}, {"type": "javascript", "value": "JSON.parse(output).service === 'Orion' && JSON.parse(output).port === 8123"}]}
 ]

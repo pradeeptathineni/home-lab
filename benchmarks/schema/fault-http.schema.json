@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/home-lab/fault-http.schema.json",
+  "title": "isolated synthetic HTTP fault experiment",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "experiment", "timestamp", "sandbox_version", "toxiproxy_version", "scenarios", "recovery_success", "caveats"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "experiment": {"const": "synthetic-http-dependency-degradation"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "sandbox_version": {"type": "string"},
+    "toxiproxy_version": {"type": "string"},
+    "scenarios": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["scenario", "toxic_configuration", "repetitions", "successes", "failures", "samples", "aggregate"],
+        "properties": {
+          "scenario": {"type": "string"},
+          "toxic_configuration": {"type": ["object", "null"]},
+          "repetitions": {"type": "integer", "minimum": 20},
+          "successes": {"type": "integer", "minimum": 0},
+          "failures": {"type": "integer", "minimum": 0},
+          "samples": {"type": "array", "minItems": 20},
+          "aggregate": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["median_ms", "p95_ms", "failure_rate"],
+            "properties": {
+              "median_ms": {"type": ["number", "null"], "minimum": 0},
+              "p95_ms": {"type": ["number", "null"], "minimum": 0},
+              "failure_rate": {"type": "number", "minimum": 0, "maximum": 1}
+            }
+          }
+        }
+      }
+    },
+    "recovery_success": {"const": true},
+    "caveats": {"type": "array", "items": {"type": "string"}}
+  }
+}

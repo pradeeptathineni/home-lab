@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/home-lab/ai-retrieval.schema.json",
+  "title": "home lab synthetic retrieval evaluation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "benchmark", "timestamp", "host", "runtime", "model", "configuration", "queries", "aggregate", "server_log", "caveats"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "benchmark": {"const": "ai-retrieval"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "host": {"type": "object", "required": ["class", "os", "os_version", "architecture"]},
+    "runtime": {"type": "object", "required": ["name", "version", "backend"]},
+    "model": {"type": "object", "required": ["id", "family", "source", "revision", "digest", "quantization", "bytes"]},
+    "configuration": {"type": "object", "required": ["dimensions", "context_tokens", "threads", "pooling", "chunk_size", "overlap", "document_prefix", "query_prefix", "corpus_sha256", "query_set_sha256", "documents", "queries", "index_time_seconds"]},
+    "queries": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "query", "relevant_document_id", "expected_fact", "expected_fact_present", "rank", "top_document_ids", "top_scores", "latency_seconds"],
+        "properties": {
+          "id": {"type": "string"},
+          "query": {"type": "string"},
+          "relevant_document_id": {"type": "string"},
+          "expected_fact": {"type": "string"},
+          "expected_fact_present": {"type": "boolean"},
+          "rank": {"type": "integer", "minimum": 1},
+          "top_document_ids": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "string"}},
+          "top_scores": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number", "minimum": -1, "maximum": 1}},
+          "latency_seconds": {"type": "number", "minimum": 0}
+        }
+      }
+    },
+    "aggregate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hit_at_1_count", "hit_at_1", "hit_at_3_count", "hit_at_3", "mrr", "expected_fact_presence_count", "latency_seconds"],
+      "properties": {
+        "hit_at_1_count": {"type": "integer", "minimum": 0},
+        "hit_at_1": {"type": "number", "minimum": 0, "maximum": 1},
+        "hit_at_3_count": {"type": "integer", "minimum": 0},
+        "hit_at_3": {"type": "number", "minimum": 0, "maximum": 1},
+        "mrr": {"type": "number", "minimum": 0, "maximum": 1},
+        "expected_fact_presence_count": {"type": "integer", "minimum": 0},
+        "latency_seconds": {"type": "object", "required": ["raw", "min", "median", "max"]}
+      }
+    },
+    "server_log": {"type": "string"},
+    "caveats": {"type": "array", "items": {"type": "string"}}
+  }
+}
