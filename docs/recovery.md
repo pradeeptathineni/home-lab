@@ -28,3 +28,8 @@ RESTIC_REPOSITORY=/explicit/local-test RESTIC_PASSWORD_FILE=/private/file \
 
 Service-specific quiesce/export steps are required before databases become
 important. Copying a live database file is not accepted as a restore strategy.
+
+The disposable sandbox has no recovery promise. `labctl sandbox destroy --yes`
+deletes that VM intentionally; recreate it from `infra/lima/sandbox.yaml` and
+rerun verification. Evidence worth retaining belongs in reviewed, sanitized
+records—not in sandbox disk state.

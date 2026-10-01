@@ -15,8 +15,8 @@ numbers I can compare instead of guesses.
   sleeps or leaves the network.
 - The dedicated server, router segmentation, and secondary DNS node are plans,
   not present hardware.
-- Tailscale and Ollama are optional host-native integrations. The repository
-  does not enroll a device or download a model.
+- Tailscale remains an optional host-native integration. Local AI uses an
+  upstream llama.cpp build and an explicit digest-pinned model registry.
 
 See [current state](docs/current-state.md) for verified runtime status.
 
@@ -28,7 +28,9 @@ See [current state](docs/current-state.md) for verified runtime status.
 | dashboard and service controls | implemented as the `core` profile |
 | metrics and logs | implemented as opt-in observability profiles |
 | Pi-hole | isolated `network-lab` profile only |
-| local AI | UI and tracking tested; inference waits for an approved model |
+| local AI | two generation models benchmarked; Granite 4.0 1B is the measured default |
+| local retrieval | synthetic 15-query embedding proof passed; personal ingest remains gated |
+| disposable sandbox | reproducible Lima lifecycle and Toxiproxy fault proof passed |
 | document sync and archive | profile healthy; synthetic Paperless proof passed |
 | backup and restore check | local mechanics proved; external target still required |
 | always-on server | planned; no hardware acquired |
@@ -42,7 +44,7 @@ See [current state](docs/current-state.md) for verified runtime status.
 flowchart TB
   subgraph MacBook["MacBook Pro (current physical host)"]
     Git["Git / editor / labctl"]
-    Ollama["Ollama (optional, native)"]
+    Llama["llama.cpp (native, loopback only)"]
     subgraph Lima["Lima VM: Debian 13"]
       Docker["Docker Compose"]
       Core["Caddy + Homarr"]
@@ -55,7 +57,7 @@ flowchart TB
       Docker --> AI
     end
     Git --> Lima
-    AI -. host.lima.internal .-> Ollama
+    AI -. SSH reverse Unix socket .-> Llama
   end
 ```
 
@@ -85,18 +87,25 @@ values without printing their contents.
 - `observability`: Prometheus, Grafana, node/container metrics, and probes
 - `observability-full`: Loki and Alloy in addition to observability
 - `network-lab`: Pi-hole on an explicit test port; no system DNS changes
-- `ai`: offline Open WebUI and MLflow; Ollama remains native to the Mac when present
+- `ai`: offline Open WebUI, a private bridge to native llama.cpp, and MLflow
 - `knowledge`: Syncthing and Paperless-ngx with empty, explicit data roots
 
 ## Evidence
 
-Benchmark methods and schemas live in [benchmarks](benchmarks/README.md).
+Benchmark, evaluation, retrieval, and fault-injection methods and schemas live
+in [benchmarks](benchmarks/README.md).
 Generated results are ignored until they have been reviewed and sanitized.
 Important dashboards are provisioned from the repository rather than existing
 only in an application database.
 
 The privacy boundary and synthetic Paperless proof are documented in
 [knowledge](docs/knowledge.md).
+
+The model files stay outside Git under the user application-support directory.
+List and verify them with `./bin/labctl ai models`; no command replaces a
+mismatched artifact. The disposable VM is likewise explicit: create it with
+`./bin/labctl sandbox create`, verify its measured boundaries, and destroy it
+with `./bin/labctl sandbox destroy --yes`.
 
 ## Server path
 

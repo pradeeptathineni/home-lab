@@ -25,10 +25,19 @@ The known service exceptions are narrow and explicit:
 - Syncthing owns only its dedicated state root and no Mac home-directory mount;
 - Open WebUI is offline by default so startup cannot fetch embedding, reranking,
   or speech models.
+- llama.cpp accepts traffic only on Mac loopback; the primary VM receives a
+  mode-`0660` Unix socket, and its bridge is internal-network-only, read-only,
+  non-root, capability-dropped, and `no-new-privileges`.
+- GGUF model artifacts are treated as data: the registry admits exact files and
+  digests, and no remote model code or `trust_remote_code` path is enabled.
 
 All host-facing bindings are loopback-only. The Lima template has an explicit
 catch-all rule that rejects automatic forwarding for guest listeners other
 than Caddy.
 
-The disposable sandbox VM has no host-directory mount. A container is not a
-substitute for a VM boundary for hostile kernel or security work.
+The disposable sandbox VM has no host-directory mount, Docker socket, primary
+state, dynamic inbound forwarding, or direct primary-VM route. Lima user-mode
+networking can still reach explicitly addressed Mac-host services, so this is a
+disposable experiment boundary rather than an internet-only security boundary.
+A container is not a substitute for a VM boundary for hostile kernel work, and
+this VM is not a substitute for a separate physical security lab.

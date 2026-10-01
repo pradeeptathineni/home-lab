@@ -13,7 +13,10 @@ then does the README tagline change from “building” to “got.”
 - HAOS VM and actual sensors using MQTT;
 - VLANs based on a known router/firewall;
 - UPS, power, temperature, humidity, and air-quality telemetry;
-- GPU-specific inference serving and measured model selection;
+- GPU-specific inference serving only after compatible hardware and a measured
+  improvement over the current Granite CPU baseline;
+- Open WebUI RAG only after a separately managed local embedding route passes
+  supported-API, privacy, retrieval-quality, and resource checks;
 - isolated security VMs and controlled network capture;
 - local camera inference only after camera hardware and retention policy exist;
 - household inventory, media, photo, or recipe tools only if they solve a real use.

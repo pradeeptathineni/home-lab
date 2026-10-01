@@ -14,6 +14,7 @@
 | Alloy | observability-full | Docker log collection | none |
 | Pi-hole | network-lab | isolated DNS filtering experiment | `data/pihole` |
 | Open WebUI | ai | offline local-model UI and knowledge surface | `data/open-webui` |
+| AI loopback bridge | ai | internal TCP adapter for the host-forwarded Unix socket | none |
 | MLflow | ai | experiment and artifact tracking | `data/mlflow` |
 | Syncthing | knowledge | approved-folder synchronization | `data/syncthing` |
 | Paperless-ngx | knowledge | OCR document archive | `data/paperless` |
@@ -21,3 +22,7 @@
 Image versions are pinned in Compose. Updates are reviewed changes; there is no
 runtime auto-updater. `renovate.json` defines a review-oriented dependency
 update policy, but no Renovate installation or schedule is assumed.
+
+The native llama.cpp process is not a Compose service. Its verified model cache
+and build live outside Git under `~/Library/Application Support/home-lab`; its
+owned process state and logs live under ignored `.runtime/` paths.
