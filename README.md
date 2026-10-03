@@ -1,69 +1,57 @@
 # home-lab
 
-This is the infrastructure I use to run and measure services at home, built out
-primarily from my laptop. I do not have a dedicated always-on server yet, so the
-current node is a Debian VM on my MacBook. The service layer is portable now and
-is meant to move to the eventual server without being rewritten.
+This project turns my personal MacBook into a small, private home lab. It runs a
+repeatable Linux environment for useful services and safe experiments while I
+learn what is worth moving to a future always-on server.
 
-The useful parts are repeatability, visibility, isolation, recovery, and
-numbers I can compare instead of guesses.
+It favors measured results over assumptions: services are optional, important
+behavior is tested, and unfinished capabilities are described honestly.
 
-## Current state
+## What it can do today
 
-- The MacBook is the only physical compute host.
-- Linux runs under Lima; nothing is guaranteed to be available when the laptop
-  sleeps or leaves the network.
-- The dedicated server, router segmentation, and secondary DNS node are plans,
-  not present hardware.
-- Tailscale remains an optional host-native integration. Local AI uses an
-  upstream llama.cpp build and an explicit digest-pinned model registry.
-
-See [current state](docs/current-state.md) for verified runtime status.
-
-## What this does
-
-| Capability | Current state |
+| Area | Capability |
 | --- | --- |
-| portable Debian node | implemented; runtime proof recorded in current state |
-| dashboard and service controls | implemented as the `core` profile |
-| metrics and logs | implemented as opt-in observability profiles |
-| Pi-hole | isolated `network-lab` profile only |
-| local AI | two generation models benchmarked; Granite 4.0 1B is the measured default |
-| local retrieval | synthetic 15-query embedding proof passed; personal ingest remains gated |
-| disposable sandbox | reproducible Lima lifecycle and Toxiproxy fault proof passed |
-| document sync and archive | profile healthy; synthetic Paperless proof passed |
-| backup and restore check | local mechanics proved; external target still required |
-| always-on server | planned; no hardware acquired |
-| router-wide DNS | gated on always-on hardware and independent fallback |
-| Home Assistant | planned for a future HAOS VM |
-| Kubernetes | deliberately deferred |
+| Home dashboard | Gives me one local place to see and control the lab's services. |
+| Monitoring | Tracks service health, computer and container usage, logs, and local AI measurements in dashboards. |
+| Local AI | Runs a small private chat model on the laptop without a cloud AI API. Two models were measured; Granite 4.0 1B is the current laptop-sized default. |
+| Local search experiments | Finds known facts in a small synthetic document set. Personal files are deliberately not ingested yet. |
+| Document tools | Runs a private document archive and a folder-sync service. Synthetic upload and search are proved; real device pairing remains a manual choice. |
+| DNS experiments | Runs Pi-hole as an isolated test service without changing the Mac, router, or household DNS. |
+| Backup practice | Creates, checks, restores, and verifies test backups. A genuinely separate backup destination is still needed. |
+| Disposable experiments | Creates a separate throwaway Linux machine, verifies its boundaries, simulates a service becoming slow or unavailable, proves recovery, and destroys the machine afterward. |
 
-## Architecture
+All services are private by default. Secrets, model files, personal data, and
+generated measurements stay outside Git. The AI server listens only on the
+laptop itself, and the project does not open router ports or use a cloud model.
 
-```mermaid
-flowchart TB
-  subgraph MacBook["MacBook Pro (current physical host)"]
-    Git["Git / editor / labctl"]
-    Llama["llama.cpp (native, loopback only)"]
-    subgraph Lima["Lima VM: Debian 13"]
-      Docker["Docker Compose"]
-      Core["Caddy + Homarr"]
-      Obs["observability (optional)"]
-      DNS["DNS lab (optional)"]
-      AI["AI and knowledge profiles (optional)"]
-      Docker --> Core
-      Docker --> Obs
-      Docker --> DNS
-      Docker --> AI
-    end
-    Git --> Lima
-    AI -. SSH reverse Unix socket .-> Llama
-  end
-```
+## What it is not yet
 
-The full current and future topology is in [architecture](docs/architecture.md).
+- It is not always available: the lab stops when the laptop sleeps or leaves.
+- It is not household-wide infrastructure: router DNS, network segmentation,
+  Home Assistant, sensors, and an independent secondary resolver remain future
+  work.
+- It is not a resilient backup system until an external destination is chosen
+  and tested.
+- It is not remotely accessible through Tailscale yet.
+- Its disposable experiment machine protects the main lab from ordinary tests,
+  but it is not a safe place for hostile code and can still reach deliberately
+  addressed services on the Mac.
+- Kubernetes is intentionally deferred; one portable machine does not need it.
 
-## Run it
+See [current state](docs/current-state.md) for the latest verified facts and the
+[roadmap](docs/roadmap.md) for the deliberately gated next steps.
+
+## How it fits together
+
+The MacBook is the only physical computer. A Debian Linux virtual machine runs
+the service stack. Local AI runs directly on the Mac for better performance and
+is connected privately to the web interface inside Linux. A second Linux
+virtual machine is created only for disposable experiments.
+
+The same service definitions and setup automation are intended to move to a
+future dedicated server without redesigning the lab.
+
+## Start the base lab
 
 ```console
 python3 -m venv .venv
@@ -73,54 +61,44 @@ python3 -m venv .venv
 ./bin/labctl node converge
 ./bin/labctl secrets init
 ./bin/labctl deploy core
+./bin/labctl deploy observability-full
 ./bin/labctl status
 ./bin/labctl validate
 ```
 
 Copy `config/example.env` to a private file outside Git and set the required
-secrets before starting stateful profiles. `labctl doctor` explains missing
-values without printing their contents.
+values before starting services that need credentials. `labctl doctor` reports
+what is missing without printing secret values.
 
-## Profiles
+The optional groups are:
 
-- `core`: Caddy, Homarr, and a restricted Docker socket proxy
-- `observability`: Prometheus, Grafana, node/container metrics, and probes
-- `observability-full`: Loki and Alloy in addition to observability
-- `network-lab`: Pi-hole on an explicit test port; no system DNS changes
-- `ai`: offline Open WebUI, a private bridge to native llama.cpp, and MLflow
-- `knowledge`: Syncthing and Paperless-ngx with empty, explicit data roots
+- `network-lab` for isolated Pi-hole testing;
+- `ai` for the private chat interface and experiment tracking;
+- `knowledge` for document archiving and folder synchronization.
 
-## Evidence
+Exact AI, sandbox, backup, and service procedures are in the
+[operations guide](docs/operations.md).
 
-Benchmark, evaluation, retrieval, and fault-injection methods and schemas live
-in [benchmarks](benchmarks/README.md).
-Generated results are ignored until they have been reviewed and sanitized.
-Important dashboards are provisioned from the repository rather than existing
-only in an application database.
+## Proof and safety
 
-The privacy boundary and synthetic Paperless proof are documented in
-[knowledge](docs/knowledge.md).
+This repository keeps the setup, tests, measurement methods, dashboards, and
+decisions needed to reproduce its claims. Generated measurements remain local
+until reviewed.
 
-The model files stay outside Git under the user application-support directory.
-List and verify them with `./bin/labctl ai models`; no command replaces a
-mismatched artifact. The disposable VM is likewise explicit: create it with
-`./bin/labctl sandbox create`, verify its measured boundaries, and destroy it
-with `./bin/labctl sandbox destroy --yes`.
-
-## Server path
-
-The eventual dedicated server is expected to run Proxmox with a Debian service
-VM. The same Ansible roles and Compose application should move there. Actual
-inventory will be added only after hardware exists. See the [roadmap](docs/roadmap.md).
+- [Benchmarks and measured results](docs/benchmarks.md)
+- [Architecture and privacy boundaries](docs/architecture.md)
+- [Security model](docs/security.md)
+- [Document and retrieval boundaries](docs/knowledge.md)
+- [Backup and recovery](docs/recovery.md)
+- [Service catalog](docs/service-catalog.md)
 
 ## Repository map
 
 | Path | Purpose |
 | --- | --- |
-| `labctl/`, `bin/labctl` | small human-scale operations wrapper |
-| `infra/lima` | portable and disposable Linux VM definitions |
-| `infra/ansible` | reusable Debian host convergence |
-| `services` | profile-specific Compose and provisioned configuration |
-| `benchmarks` | schemas, runners, and reviewed evidence |
-| `docs` | operating model, security, recovery, and decisions |
-| `config` | safe examples; no runtime secrets or state |
+| `labctl/`, `bin/labctl` | simple commands for operating the lab |
+| `infra/` | Linux machines and repeatable host setup |
+| `services/` | optional service groups and dashboards |
+| `benchmarks/` | reproducible measurements, schemas, and test fixtures |
+| `docs/` | operating details, boundaries, recovery, and decisions |
+| `config/` | safe examples and the verified local-model registry |
